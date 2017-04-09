@@ -30,8 +30,8 @@ public final class HassConstants {
 
     public static final String URL_STATES = "states/";
     public static final String URL_SERVICES = "services/";
-    public static final String URL_DOMAIN_SCENE = "scene/";
-    public static final String URL_DOMAIN_LIGHT = "light/";
+    public static final String DOMAIN_SCENE = "scene";
+    public static final String DOMAIN_LIGHT = "light";
 
     public enum EntityType {
         GROUP,

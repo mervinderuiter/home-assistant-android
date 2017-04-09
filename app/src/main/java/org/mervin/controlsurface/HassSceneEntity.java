@@ -15,32 +15,19 @@ public class HassSceneEntity extends HassEntity implements SceneInterface {
         this.state = STATE_ON;
     }
 
-    @Override
-    public void pause() { }
-
-    @Override
-    public void resume() { }
-
-    @Override
-    public void setAutoUpdate(boolean autoUpdate) { }
-
-    @Override
-    public void getState() { }
-
     public void turnOn() {
         sendSwitchRequest(COMMAND_ON);
     }
 
     private void sendSwitchRequest(String action) {
 
-        String url = base_url + URL_SERVICES + URL_DOMAIN_SCENE + action;
-
         try {
             JSONObject payload = new JSONObject();
             payload.put(ATTR_ENTITY_ID, entityName);
-            createPostRequest(url, payload.toString().getBytes());
+            hassEntities.callService(DOMAIN_SCENE, action, payload);
         }
         catch (JSONException e) {
+
             e.printStackTrace();
         }
     }

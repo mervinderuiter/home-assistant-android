@@ -17,6 +17,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     Surface.LightControlInterfaceCallback callback;
 
     private ArrayList<HassLightEntity> childEntities = new ArrayList<>();
+    private ArrayList<String> childIds = new ArrayList<>();
     private boolean childEntitiesSet = false;
 
     private ColorType colorType = ColorType.UNKNOWN;
@@ -47,8 +48,6 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
         this.callback = callback;
-        //callback is set, we probably want to autoupdate from now
-        setAutoUpdate(true);
     }
 
     public void setRgb(int[] rgb) {
@@ -216,28 +215,35 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
         callback.unsetLightControlCallback();
     }
 
-    private void setChildEntities(JSONArray jsonArray) {
-        for(int i = 0, count = jsonArray.length(); i< count; i++)
-        {
+    private void setChildIds(JSONArray jsonArray) {
+        try {
+            for (int i = 0, count = jsonArray.length(); i < count; i++) {
+                childIds.add(jsonArray.getString(i));
+            }
+        } catch (JSONException e) {}
+    }
+
+    public void setChildEntities() {
+
+        for (String childId : childIds) {
             try {
-                HassLightEntity entity = hassEntities.getLightEntity(jsonArray.getString(i));
+                HassLightEntity entity = hassEntities.getLightEntity(childId);
                 if (entity != null) {
                     childEntities.add(entity);
-                    entity.setAutoUpdate(autoUpdate);
                 }
-
             } catch (Exception e) {}
+
         }
         childEntitiesSet = true;
     }
 
     private void sendSwitchRequest(String action) {
-        String url = base_url + URL_SERVICES + URL_DOMAIN_LIGHT + action;
+        String url = base_url + URL_SERVICES + DOMAIN_LIGHT + action;
 
         try {
             JSONObject payload = new JSONObject();
             payload.put(ATTR_ENTITY_ID, entityName);
-            createPostRequest(url, payload.toString().getBytes());
+            hassEntities.callService(DOMAIN_LIGHT, action, payload);
         }
         catch (JSONException e) {
             e.printStackTrace();
@@ -250,12 +256,8 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
             String newState = row.getString(ATTR_STATE);
             JSONObject attributes = row.getJSONObject(ATTR);
 
-            if (!childEntitiesSet && hassEntities.isInitialized()) {
-                JSONArray jsonArray = attributes.getJSONArray(ATTR_ENTITY_ID);
-                setChildEntities(jsonArray);
-            } else {
-
-            }
+            JSONArray jsonArray = attributes.getJSONArray(ATTR_ENTITY_ID);
+            setChildIds(jsonArray);
 
             if (!state.equals(newState)) {
                 updateState(newState);

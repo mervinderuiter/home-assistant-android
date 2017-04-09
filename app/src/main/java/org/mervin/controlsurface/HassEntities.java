@@ -36,6 +36,7 @@ public class HassEntities {
 
     private int subscriberEventId = 1337;
     private int getStatesId = 1338;
+    private int callServiceId = 1339;
 
     AsyncHttpClient.WebSocketConnectCallback websocketConnectCallback;
     AsyncHttpClient asyncHttpClient;
@@ -45,7 +46,6 @@ public class HassEntities {
 
     public HassEntities(RequestQueue queue) {
         this.queue = queue;
-        queue.add(createGetRequest("http://192.168.1.199:8123/api/states"));
         createWebsocket();
     }
 
@@ -69,16 +69,12 @@ public class HassEntities {
         return null;
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
-        if (initialized) {
-            // To initialize groups
-            getStates();
+        for (HassGroupEntity group : groups) {
+            group.setChildEntities();
         }
+        callback.platformInitialized();
     }
 
     public ArrayList<LightControlInterface> getLightControl() {
@@ -104,28 +100,10 @@ public class HassEntities {
         return lights;
     }
 
-    private StringRequest createGetRequest(String url){
 
-        StringRequest stringRequest = new StringRequest(com.android.volley.Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        initEntities(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
 
-                    }
-                });
-
-        return stringRequest;
-    }
-
-    private void initEntities(String states) {
+    private void initEntities(JSONArray array) {
         try {
-            JSONArray array = new JSONArray(states);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject row = array.getJSONObject(i);
 
@@ -159,26 +137,31 @@ public class HassEntities {
                         climates.add(entity);
                         entities.put(entityId, entity);
                     }
-
                 }
             }
-            initialized();
         } catch (Throwable t) {
 
         }
-    }
-
-    private void initialized() {
-        initialized = true;
-        callback.platformInitialized();
     }
 
     private void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;
         this.webSocket.setStringCallback(getStringCallback());
         subscribeStates();
-        getStates();
+        if (!initialized) {
+            getStates();
+        }
     }
+
+    private void dispatchState(JSONObject state) {
+        try {
+            HassEntity entity = getEntity(state.getString(ATTR_ENTITY_ID));
+            if (entity != null) {
+                entity.processState(state);
+            }
+        } catch (JSONException e) {}
+    }
+
 
     private WebSocket.StringCallback getStringCallback() {
         return new WebSocket.StringCallback(){
@@ -189,20 +172,15 @@ public class HassEntities {
                         JSONObject event = row.getJSONObject("event");
                         JSONObject data = event.getJSONObject("data");
                         JSONObject newState = data.getJSONObject("new_state");
-                        HassEntity entity = getEntity(data.getString(ATTR_ENTITY_ID));
-                        if (entity != null) {
-                            entity.processState(newState);
-                        }
+                        dispatchState(newState);
                     }
                     if (row.getInt("id") == getStatesId) {
                         JSONArray array = row.getJSONArray("result");
+                        initEntities(array);
                         for(int i = 0, count = array.length(); i< count; i++)
                         {
                             JSONObject stateRow = array.getJSONObject(i);
-                            HassEntity entity = getEntity(stateRow.getString(ATTR_ENTITY_ID));
-                            if (entity != null) {
-                                entity.processState(stateRow);
-                            }
+                            dispatchState(stateRow);
                         }
                         setInitialized(true);
                     }
@@ -228,6 +206,21 @@ public class HassEntities {
             getStates.put("id", getStatesId);
             getStates.put("type", "get_states");
             webSocket.send(getStates.toString());
+        } catch (JSONException e) {}
+    }
+
+    public void callService(String domain, String service, JSONObject service_data) {
+        try {
+            callServiceId += 1;
+            JSONObject callService = new JSONObject();
+            callService.put("id", callServiceId);
+            callService.put("type", "call_service");
+            callService.put("domain", domain);
+            callService.put("service", service);
+            if (service_data != null) {
+                callService.put("service_data", service_data);
+            }
+            webSocket.send(callService.toString());
         } catch (JSONException e) {}
     }
 

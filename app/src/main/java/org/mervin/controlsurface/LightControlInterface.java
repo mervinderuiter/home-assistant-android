@@ -29,5 +29,4 @@ public interface LightControlInterface {
     void setCallback(Surface.LightControlInterfaceCallback callback);
     boolean isGroup();
     ArrayList<LightControlInterface> getChildEntities();
-    void setAutoUpdate(boolean autoUpdate);
 }

@@ -286,9 +286,8 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
 
     @Override
     protected void onPause() {
-        for (Map.Entry<Integer, HassEntity> entity : entities.entrySet()){
-            entity.getValue().pause();
-        }
+
+        //TODO: Handle websocket
         unsetLightControls();
         hideChildEntities();
 
@@ -298,11 +297,9 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
 
     @Override
     protected void onResume() {
-        for (Map.Entry<Integer, HassEntity> entity : entities.entrySet()){
-            entity.getValue().resume();
-        }
+        //TODO: Handle websocket
         nestView.onResume();
-        super.onPause();
+        super.onResume();
     }
 
     @Override

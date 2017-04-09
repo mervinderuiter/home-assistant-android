@@ -29,7 +29,6 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
 
     public HassLightEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
         super(entityId, friendlyName, queue, hassEntities);
-        getState();
     }
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
@@ -143,7 +142,7 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
 
     private void sendSwitchRequest(String action) {
 
-        String url = base_url + URL_SERVICES + URL_DOMAIN_LIGHT + action;
+        String url = base_url + URL_SERVICES + DOMAIN_LIGHT + action;
 
         try {
             JSONObject payload = new JSONObject();
@@ -167,7 +166,8 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
                     payload.put(ATTR_EFFECT, EFFECT_COLOR_LOOP);
                 }
             }
-            createPostRequest(url, payload.toString().getBytes());
+            hassEntities.callService(DOMAIN_LIGHT, action, payload);
+            //createPostRequest(url, payload.toString().getBytes());
         }
         catch (JSONException e) {
             e.printStackTrace();
