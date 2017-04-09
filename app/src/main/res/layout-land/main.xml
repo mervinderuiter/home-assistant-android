@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#373F48">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="15dip">
+
+        <ImageButton
+            android:layout_height="wrap_content"
+            android:id="@+id/groupsButton"
+            android:layout_width="match_parent"
+            android:background="@null"
+            app:srcCompat="@drawable/ic_lightbulb_on_outline_white_36dp"
+            android:layout_margin="10dip" />
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_nest_thermostat_white_36dp"
+            android:id="@+id/nestButton"
+            android:background="@null"
+            android:layout_margin="10dip" />
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_television_white_36dp"
+            android:id="@+id/tvButton"
+            android:background="@null"
+            android:layout_margin="10dip" />
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_spotlight_beam_white_36dp"
+            android:id="@+id/imageButton3"
+            android:background="@null"
+            android:layout_margin="10dip" />
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_spotify_white_36dp"
+            android:id="@+id/imageButton7"
+            android:background="@null"
+            android:layout_margin="10dip" />
+
+        <ImageButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_music_note_white_48dp"
+            android:id="@+id/imageButton9"
+            android:background="@null"
+            android:layout_marginTop="10dip" />
+
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbarAlwaysDrawHorizontalTrack="true"
+        android:layout_marginLeft="20dip"
+        android:id="@+id/scrollView">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:weightSum="1">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:id="@+id/groupsView"
+                android:layout_width="150dip">
+
+                <ImageButton
+                    android:layout_height="115dip"
+                    app:srcCompat="@drawable/ic_lightbulb_on_outline_white_48dp"
+                    android:id="@+id/group.licht_woonkamer"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/holo_blue_dark"
+                    android:layout_width="match_parent" />
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    app:srcCompat="@drawable/ic_arrow_up_bold_white_48dp"
+                    android:id="@+id/group.licht_voorkamer"
+                    android:layout_row="2"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:layout_height="115dip"
+                    android:backgroundTint="@color/colorPrimary" />
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="115dip"
+                    app:srcCompat="@drawable/ic_arrow_left_bold_white_48dp"
+                    android:id="@+id/group.licht_achterkamer"
+                    android:layout_weight="1"
+                    android:layout_row="0"
+                    android:layout_column="2"
+                    android:backgroundTint="@color/colorPrimaryDark" />
+
+                <ImageButton
+                    app:srcCompat="@drawable/ic_fire_white_48dp"
+                    android:id="@+id/group.haard"
+                    android:layout_weight="1"
+                    android:layout_height="100dip"
+                    android:layout_width="match_parent"
+                    android:backgroundTint="@android:color/holo_orange_dark" />
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="100dip"
+                    app:srcCompat="@drawable/ic_hotel_white_48dp"
+                    android:id="@+id/group.licht_slaapkamer"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/holo_red_light" />
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="100dip"
+                    app:srcCompat="@drawable/ic_exit_to_app_white_48dp"
+                    android:id="@+id/group.licht_hal"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/groupEntityView"
+                    android:layout_margin="10dip"
+                    android:layout_width="match_parent"></LinearLayout>
+            </ScrollView>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:id="@+id/lightControlsView"
+                android:layout_margin="10dip">
+
+                <TextView
+                    android:text="TextView"
+                    android:layout_width="match_parent"
+                    android:id="@+id/entityName"
+                    android:textStyle="normal|bold"
+                    android:textSize="18sp"
+                    android:layout_height="30dip" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:weightSum="2"
+                        android:id="@+id/brightTempContainer">
+
+                        <me.tankery.lib.circularseekbar.CircularSeekBar
+                            android:layout_width="150dip"
+                            android:layout_height="match_parent"
+                            android:id="@+id/brightness"
+                            android:background="@drawable/bright"
+                            android:layout_margin="20dip"
+                            android:layout_weight="1" />
+
+                        <me.tankery.lib.circularseekbar.CircularSeekBar
+                            android:layout_width="150dip"
+                            android:layout_height="match_parent"
+                            android:id="@+id/colorTemp"
+                            android:background="@drawable/temp"
+                            android:layout_margin="20dip"
+                            android:layout_weight="1" />
+
+
+                        <!--
+                        <org.mervin.controlsurface.VerticalSeekBar
+                            style="@style/Widget.AppCompat.SeekBar.Discrete"
+                            android:layout_width="80dp"
+                            android:layout_height="match_parent"
+                            android:max="347"
+                            android:progress="3"
+                            android:id="@+id/colorTemp"
+                            android:background="@drawable/temp"
+                            android:layout_weight="1"
+                            android:layout_margin="10dip"
+                            android:thumb="@null" />
+
+                        <org.mervin.controlsurface.VerticalSeekBar
+                            style="@style/Widget.AppCompat.SeekBar.Discrete"
+                            android:layout_width="80dp"
+                            android:layout_height="match_parent"
+                            android:max="255"
+                            android:progress="25"
+                            android:id="@+id/brightness"
+                            android:background="@drawable/bright"
+                            android:layout_weight="1"
+                            android:layout_margin="10dip"
+                            android:thumb="@null"
+                            android:indeterminate="false" />-->
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
+                        android:layout_margin="20dip">
+
+                        <ImageButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_invert_colors_white_48dp"
+                            android:id="@+id/selectColorButton" />
+
+                        <ImageButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_shuffle_variant_white_48dp"
+                            android:id="@+id/randomColorButton" />
+
+                        <ImageButton
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_loop_white_48dp"
+                            android:id="@+id/colorLoopButton" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:visibility="visible"
+                android:layout_marginLeft="20dip"
+                android:id="@+id/scenesView">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_pencil_box_outline_white_48dp"
+                    android:id="@+id/scene.werklicht_eettafel" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_spotlight_beam_white_48dp"
+                    android:id="@+id/scene.tl_bureau" />
+
+            </LinearLayout>
+
+            <WebView
+                android:layout_width="500dp"
+                android:layout_height="match_parent"
+                android:id="@+id/nest"
+                android:padding="5dip"
+                android:background="@android:color/transparent"
+                android:layout_marginLeft="20dip">
+
+            </WebView>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="300dip"
+                android:layout_height="match_parent"
+                android:id="@+id/tvView"
+                android:layout_marginLeft="20dip">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_television_white_48dp"
+                        android:id="@+id/scene.tv_kijken"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_google_chrome_white_48dp"
+                        android:id="@+id/scene.chromecast_kijken"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_power_white_48dp"
+                        android:id="@+id/scene.tv_uit"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_volume_medium_white_48dp"
+                        android:id="@+id/scene.zachter"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_volume_off_white_48dp"
+                        android:id="@+id/scene.mute"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_volume_high_white_48dp"
+                        android:id="@+id/scene.harder"
+                        android:layout_weight="1" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>
