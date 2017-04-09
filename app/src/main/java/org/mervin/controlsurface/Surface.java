@@ -58,7 +58,6 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
         void updateClimateControlCallback(ClimateControlInterface entity);
     }
 
-    private WebView nestView;
     private LinearLayout groupsView;
     private LinearLayout lightControlsView;
     private LinearLayout groupEntityView;
@@ -118,7 +117,6 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
         scrollView = (HorizontalScrollView) findViewById(R.id.scrollView);
         scrollView.smoothScrollTo(0,0);
 
-        nestView = (WebView) findViewById(R.id.nest);
         groupsView = (LinearLayout) findViewById(R.id.groupsView);
         lightControlsView = (LinearLayout) findViewById(R.id.lightControlsView);
         brightTempContainer = (LinearLayout) findViewById(R.id.brightTempContainer);
@@ -161,7 +159,7 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
         nestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scrollView.smoothScrollTo(nestView.getLeft(), 0);
+                //scrollView.smoothScrollTo(nestView.getLeft(), 0);
             }
         });
 
@@ -286,19 +284,15 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
 
     @Override
     protected void onPause() {
-
         //TODO: Handle websocket
         unsetLightControls();
         hideChildEntities();
-
-        nestView.onPause();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         //TODO: Handle websocket
-        nestView.onResume();
         super.onResume();
     }
 
@@ -325,10 +319,7 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
     }
 
     private void populateNest() {
-        nestView.getSettings().setJavaScriptEnabled(true);
-        nestView.getSettings().setDomStorageEnabled(true);
-        nestView.setWebChromeClient(new WebChromeClient());
-        nestView.loadUrl("https://home.nest.com/thermostat/02AA01AC41140383");
+
     }
 
     private void setLightControls(LightControlInterface entity) {
@@ -338,8 +329,6 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
             entityName.setText(entity.getName());
             boolean visible = false;
             boolean update = false;
-
-
 
             if (controlOwner != null) {
                 if (controlOwner.hasBrightness()) {

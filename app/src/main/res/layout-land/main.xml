@@ -272,16 +272,6 @@
 
             </LinearLayout>
 
-            <WebView
-                android:layout_width="500dp"
-                android:layout_height="match_parent"
-                android:id="@+id/nest"
-                android:padding="5dip"
-                android:background="@android:color/transparent"
-                android:layout_marginLeft="20dip">
-
-            </WebView>
-
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="300dip"
