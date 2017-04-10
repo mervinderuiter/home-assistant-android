@@ -285,6 +285,7 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
     @Override
     protected void onPause() {
         //TODO: Handle websocket
+        hassEntities.onPause();
         unsetLightControls();
         hideChildEntities();
         super.onPause();
@@ -293,6 +294,7 @@ public class Surface extends AppCompatActivity implements Application.OnProvideA
     @Override
     protected void onResume() {
         //TODO: Handle websocket
+        hassEntities.onResume();
         super.onResume();
     }
 

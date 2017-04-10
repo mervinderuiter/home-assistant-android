@@ -224,17 +224,19 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setChildEntities() {
-
-        for (String childId : childIds) {
-            try {
-                HassLightEntity entity = hassEntities.getLightEntity(childId);
-                if (entity != null) {
-                    childEntities.add(entity);
+        if (!hassEntities.initialized) {
+            for (String childId : childIds) {
+                try {
+                    HassLightEntity entity = hassEntities.getLightEntity(childId);
+                    if (entity != null) {
+                        childEntities.add(entity);
+                    }
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {}
 
+            }
+            childEntitiesSet = true;
         }
-        childEntitiesSet = true;
     }
 
     private void sendSwitchRequest(String action) {
@@ -256,8 +258,10 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
             String newState = row.getString(ATTR_STATE);
             JSONObject attributes = row.getJSONObject(ATTR);
 
-            JSONArray jsonArray = attributes.getJSONArray(ATTR_ENTITY_ID);
-            setChildIds(jsonArray);
+            if (!hassEntities.initialized) {
+                JSONArray jsonArray = attributes.getJSONArray(ATTR_ENTITY_ID);
+                setChildIds(jsonArray);
+            }
 
             if (!state.equals(newState)) {
                 updateState(newState);

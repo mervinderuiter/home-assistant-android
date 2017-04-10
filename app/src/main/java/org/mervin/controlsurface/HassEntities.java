@@ -69,14 +69,6 @@ public class HassEntities {
         return null;
     }
 
-    public void setInitialized(boolean initialized) {
-        this.initialized = initialized;
-        for (HassGroupEntity group : groups) {
-            group.setChildEntities();
-        }
-        callback.platformInitialized();
-    }
-
     public ArrayList<LightControlInterface> getLightControl() {
         ArrayList<LightControlInterface> result = new ArrayList<>();
         for (HassGroupEntity entity: groups) {
@@ -144,13 +136,25 @@ public class HassEntities {
         }
     }
 
+    public void onPause() {
+        webSocket.close();
+        webSocket = null;
+    }
+
+    public void onResume() {
+        if (webSocket != null) {
+            webSocket.end();
+            webSocket.close();
+            webSocket = null;
+        }
+        createWebsocket();
+    }
+
     private void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;
         this.webSocket.setStringCallback(getStringCallback());
         subscribeStates();
-        if (!initialized) {
-            getStates();
-        }
+        getStates();
     }
 
     private void dispatchState(JSONObject state) {
@@ -176,13 +180,21 @@ public class HassEntities {
                     }
                     if (row.getInt("id") == getStatesId) {
                         JSONArray array = row.getJSONArray("result");
-                        initEntities(array);
+                        if (!initialized) {
+                            initEntities(array);
+                        }
                         for(int i = 0, count = array.length(); i< count; i++)
                         {
                             JSONObject stateRow = array.getJSONObject(i);
                             dispatchState(stateRow);
                         }
-                        setInitialized(true);
+                        if (!initialized) {
+                            for (HassGroupEntity group : groups) {
+                                group.setChildEntities();
+                            }
+                            initialized = true;
+                            callback.platformInitialized();
+                        }
                     }
 
                 } catch (JSONException e) {}
