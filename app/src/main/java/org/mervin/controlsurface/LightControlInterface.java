@@ -26,7 +26,9 @@ public interface LightControlInterface {
     boolean isOn();
     String getName();
     String getId();
+    String getIcon();
+    int getColor();
     void setCallback(Surface.LightControlInterfaceCallback callback);
     boolean isGroup();
-    ArrayList<LightControlInterface> getChildEntities();
+    ArrayList<LightControlInterface> getLightControlEntities();
 }

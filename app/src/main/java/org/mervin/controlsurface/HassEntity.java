@@ -1,5 +1,6 @@
 package org.mervin.controlsurface;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -23,23 +24,23 @@ public class HassEntity {
     protected String entityName;
     protected String state = STATE_OFF;
 
-    protected boolean autoUpdate = false;
-
-    protected RequestQueue queue;
     protected String base_url;
     protected String entity_url;
     protected String friendlyName;
-    protected Timer timer;
+    protected String icon;
+    protected int color;
 
     protected HassEntities hassEntities;
 
-    public HassEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
+    public HassEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
         this.entityName = entityId;
-        this.queue = queue;
         this.base_url = "http://192.168.1.199:8123/api/";
         this.entity_url = base_url + URL_STATES + entityId;
         this.friendlyName = friendlyName;
         this.hassEntities = hassEntities;
+        this.icon = icon;
+        this.color = color;
+
         entityType = getEntityType(entityId);
     }
 
@@ -47,7 +48,7 @@ public class HassEntity {
         return false;
     }
 
-    public ArrayList<LightControlInterface> getChildEntities() {
+    public ArrayList<LightControlInterface> getLightControlEntities() {
         return null;
     }
 
@@ -59,8 +60,13 @@ public class HassEntity {
         return friendlyName;
     }
 
+    public String getIcon() {
+        return icon;
+    }
 
-
+    public int getColor() {
+        return color;
+    }
 
     public void processState(JSONObject row) {
         //To be implemented from derived class

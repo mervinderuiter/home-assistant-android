@@ -1,5 +1,6 @@
 package org.mervin.controlsurface;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
@@ -27,8 +28,8 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
     public boolean hasColorLoop = false;
 
 
-    public HassLightEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
-        super(entityId, friendlyName, queue, hassEntities);
+    public HassLightEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
+        super(entityId, friendlyName, icon, color, hassEntities);
     }
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {

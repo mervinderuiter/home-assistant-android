@@ -2,8 +2,6 @@ package org.mervin.controlsurface;
 
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +14,8 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     Surface.LightControlInterfaceCallback callback;
 
-    private ArrayList<HassLightEntity> childEntities = new ArrayList<>();
+    private ArrayList<HassLightEntity> lightControlEntities = new ArrayList<>();
+    private ArrayList<HassEntity> entities = new ArrayList<>();
     private ArrayList<String> childIds = new ArrayList<>();
     private boolean childEntitiesSet = false;
 
@@ -28,8 +27,8 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     public boolean hasColorTemp = false;
     public boolean hasRgb = false;
 
-    public HassGroupEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
-        super(entityId, friendlyName, queue, hassEntities);
+    public HassGroupEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
+        super(entityId, friendlyName, icon, color, hassEntities);
     }
 
     @Override
@@ -38,9 +37,17 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     @Override
-    public ArrayList<LightControlInterface> getChildEntities() {
+    public ArrayList<LightControlInterface> getLightControlEntities() {
         ArrayList<LightControlInterface> array = new ArrayList<>();
-        for (LightControlInterface entity: childEntities) {
+        for (LightControlInterface entity: lightControlEntities) {
+            array.add(entity);
+        }
+        return array;
+    }
+
+    public ArrayList<HassEntity> getEntities() {
+        ArrayList<HassEntity> array = new ArrayList<>();
+        for (HassEntity entity: entities) {
             array.add(entity);
         }
         return array;
@@ -51,7 +58,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setRgb(int[] rgb) {
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasRgb()){
                 entity.setRgb(rgb);
             }
@@ -59,7 +66,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setColorTemp(int newColorTemp) {
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorTemp()){
                 entity.setColorTemp(newColorTemp);
             }
@@ -67,7 +74,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setRandom() {
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorTemp()){
                 entity.setRandom();
             }
@@ -75,7 +82,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setColorLoop() {
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorTemp()){
                 entity.setColorLoop();
             }
@@ -83,7 +90,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     public void setBrightness(int brightness) {
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasBrightness()){
                 entity.setBrightness(brightness);
             }
@@ -92,7 +99,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public int getBrightness() {
         int result = 0;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasBrightness()){
                 result = entity.getBrightness();
                 break;
@@ -103,7 +110,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public int getColorTemp() {
         int result = 0;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorTemp()){
                 result = entity.getColorTemp();
                 break;
@@ -114,7 +121,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public int[] getRgb() {
         int[] result = new int[3];
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasRgb()){
                 result = entity.getRgb();
                 break;
@@ -125,7 +132,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public boolean hasBrightness() {
         boolean result = false;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasBrightness()){
                 result = true;
                 break;
@@ -136,7 +143,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public boolean hasColorTemp() {
         boolean result = false;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorTemp()){
                 result = true;
                 break;
@@ -147,7 +154,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public boolean hasRgb() {
         boolean result = false;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasRgb()){
                 result = true;
                 break;
@@ -158,7 +165,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public boolean hasColorLoop() {
         boolean result = false;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasColorLoop()){
                 result = true;
                 break;
@@ -169,7 +176,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public boolean hasRandom() {
         boolean result = false;
-        for (HassLightEntity entity : childEntities) {
+        for (HassLightEntity entity : lightControlEntities) {
             if (entity.hasRandom()){
                 result = true;
                 break;
@@ -212,7 +219,9 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     }
 
     private void unsetLightControls() {
-        callback.unsetLightControlCallback();
+        if (callback != null) {
+            callback.unsetLightControlCallback();
+        }
     }
 
     private void setChildIds(JSONArray jsonArray) {
@@ -227,9 +236,13 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
         if (!hassEntities.initialized) {
             for (String childId : childIds) {
                 try {
-                    HassLightEntity entity = hassEntities.getLightEntity(childId);
+                    HassLightEntity lightEntity = hassEntities.searchLightEntity(childId);
+                    if (lightEntity != null) {
+                        lightControlEntities.add(lightEntity);
+                    }
+                    HassEntity entity = hassEntities.searchEntity(childId);
                     if (entity != null) {
-                        childEntities.add(entity);
+                        entities.add(entity);
                     }
                 } catch (Exception e) {
                 }

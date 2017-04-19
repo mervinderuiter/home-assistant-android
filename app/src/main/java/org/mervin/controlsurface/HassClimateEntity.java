@@ -1,5 +1,6 @@
 package org.mervin.controlsurface;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
@@ -17,8 +18,8 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
     private float currentTemp;
     private float targetTemp;
 
-    public HassClimateEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
-        super(entityId, friendlyName, queue, hassEntities);
+    public HassClimateEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
+        super(entityId, friendlyName, icon, color, hassEntities);
     }
 
     public void setCallback(Surface.ClimateControlInterfaceCallback callback) {

@@ -1,0 +1,8 @@
+<!-- drawable/instapaper.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:fillColor="#000" android:pathData="M10,5A1,1 0 0,0 9,4H8V2H16V4H15A1,1 0 0,0 14,5V19A1,1 0 0,0 15,20H16V22H8V20H9A1,1 0 0,0 10,19V5Z" />
+</vector>

@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="list_item_background">#aa4a4a4a</color>
+    <color name="app_color">#8eae3c</color>
+    <color name="white">#FFFFFF</color>
 </resources>

@@ -24,9 +24,12 @@ public final class HassConstants {
     public static final String ATTR_EFFECT = "effect";
     public static final String ATTR_STATE = "state";
     public static final String ATTR_FRIENDLY_NAME = "friendly_name";
+    public static final String ATTR_ICON = "icon";
     public static final String ATTR = "attributes";
     public static final String EFFECT_RANDOM = "random";
     public static final String EFFECT_COLOR_LOOP = "colorloop";
+    public static final String SURFACE_BUTTON_COLOR = "surface_button_color";
+    public static final String SURFACE_ICON = "surface_icon";
 
     public static final String URL_STATES = "states/";
     public static final String URL_SERVICES = "services/";

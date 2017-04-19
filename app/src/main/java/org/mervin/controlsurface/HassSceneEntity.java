@@ -1,5 +1,7 @@
 package org.mervin.controlsurface;
 
+import android.graphics.Color;
+
 import com.android.volley.RequestQueue;
 
 import org.json.JSONArray;
@@ -10,8 +12,8 @@ import static org.mervin.controlsurface.HassConstants.*;
 
 public class HassSceneEntity extends HassEntity implements SceneInterface {
 
-    public HassSceneEntity(String entityId, String friendlyName, RequestQueue queue, HassEntities hassEntities) {
-        super(entityId, friendlyName, queue, hassEntities);
+    public HassSceneEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
+        super(entityId, friendlyName, icon, color, hassEntities);
         this.state = STATE_ON;
     }
 

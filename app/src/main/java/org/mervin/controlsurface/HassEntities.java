@@ -1,14 +1,10 @@
 package org.mervin.controlsurface;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Handler;
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.koushikdutta.async.ByteBufferList;
-import com.koushikdutta.async.DataEmitter;
-import com.koushikdutta.async.callback.DataCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
@@ -18,7 +14,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.mervin.controlsurface.HassConstants.*;
 
@@ -26,7 +21,6 @@ public class HassEntities {
 
     Surface.PlatformInitializedCallback callback;
 
-    private RequestQueue queue;
     private ArrayList<HassGroupEntity> groups = new ArrayList<>();
     private ArrayList<HassLightEntity> lights = new ArrayList<>();
     private ArrayList<HassSceneEntity> scenes = new ArrayList<>();
@@ -34,34 +28,53 @@ public class HassEntities {
 
     private HashMap<String, HassEntity> entities = new HashMap<>();
 
-    private int subscriberEventId = 1337;
-    private int getStatesId = 1338;
-    private int callServiceId = 1339;
+    private int subscriberEventId = 10000;
+    private int getStatesId = 20000;
+    private int callServiceId = 30000;
 
-    AsyncHttpClient.WebSocketConnectCallback websocketConnectCallback;
     AsyncHttpClient asyncHttpClient;
     WebSocket webSocket;
 
+    private Context context;
+
     public boolean initialized = false;
 
-    public HassEntities(RequestQueue queue) {
-        this.queue = queue;
-        createWebsocket();
+    private int port;
+    private String ip;
+    private String webSocketUrl;
+
+    public HassEntities(Context context, String ip, int port) {
+        this.context = context;
+        this.ip = ip;
+        this.port = port;
+
+        webSocketUrl = "ws://" + ip + ":" + Integer.toString(port) + "/api/websocket";
+
+        start();
     }
 
-    public HassEntity getEntity(String entityId) {
-        for (HassEntity entity: groups) {
-            if (entity.getId().equals(entityId))
-                return entity;
-        }
-        for (HassEntity entity: lights) {
-            if (entity.getId().equals(entityId))
-                return entity;
-        }
-        return null;
+    public void stop(){
+        closeWebSocket();
+        entities.clear();
+        groups.clear();
+        lights.clear();
+        scenes.clear();
+        climates.clear();
+        initialized = false;
     }
 
-    public HassLightEntity getLightEntity(String entityId) {
+    public void start() {
+        if (!ip.equals(R.string.settings_hass_default_ip)) {
+            createWebsocket();
+        }
+    }
+
+    public void restart() {
+        stop();
+        start();
+    }
+
+    public HassLightEntity searchLightEntity(String entityId) {
         for (HassLightEntity entity: lights) {
             if (entity.getId().equals(entityId))
                 return entity;
@@ -69,7 +82,43 @@ public class HassEntities {
         return null;
     }
 
-    public ArrayList<LightControlInterface> getLightControl() {
+    public HassGroupEntity searchGroupEntity(String entityId) {
+        for (HassGroupEntity entity: groups) {
+            if (entity.getId().equals(entityId))
+                return entity;
+        }
+        return null;
+    }
+
+    public LightControlInterface searchLightControl(String id) {
+        for (HassGroupEntity entity: groups) {
+            if (entity.getId().equals(id))
+                return entity;
+        }
+        for (HassLightEntity entity: lights) {
+            if (entity.getId().equals(id))
+                return entity;
+        }
+        return null;
+    }
+
+    public HassEntity searchEntity(String id) {
+        if (entities.containsKey(id)) {
+            return entities.get(id);
+        } else {
+            return null;
+        }
+    }
+
+    public ArrayList<LightControlInterface> getLightControlGroups() {
+        ArrayList<LightControlInterface> result = new ArrayList<>();
+        for (HassGroupEntity entity: groups) {
+            result.add(entity);
+        }
+        return result;
+    }
+
+    public ArrayList<LightControlInterface> getLightControlLights() {
         ArrayList<LightControlInterface> result = new ArrayList<>();
         for (HassGroupEntity entity: groups) {
             result.add(entity);
@@ -102,30 +151,48 @@ public class HassEntities {
                 String entityId = row.getString(ATTR_ENTITY_ID);
                 EntityType entityType = HassConstants.getEntityType(entityId);
 
+
                 if (entityType != EntityType.UNKNOWN) {
                     JSONObject attributes = row.getJSONObject(ATTR);
                     String friendlyName = attributes.getString(ATTR_FRIENDLY_NAME);
 
+                    String icon;
+                    if (attributes.has(ATTR_ICON)) {
+                        icon = attributes.getString(ATTR_ICON);
+                    } else if (attributes.has(SURFACE_ICON)) {
+                        icon = attributes.getString(ATTR_ICON);
+                    } else {
+                        icon = "";
+                    }
+
+                    int buttonColor = Color.parseColor("#060606");
+                    try {
+                        boolean hasButtonColor = attributes.has(SURFACE_BUTTON_COLOR);
+                        if (hasButtonColor)
+                            buttonColor = Color.parseColor(attributes.getString(SURFACE_BUTTON_COLOR));
+                    } catch (Exception e) {}
+
+
                     if (entityType == EntityType.GROUP) {
-                        HassGroupEntity entity = new HassGroupEntity(entityId, friendlyName, queue, this);
+                        HassGroupEntity entity = new HassGroupEntity(entityId, friendlyName, icon, buttonColor, this);
                         groups.add(entity);
                         entities.put(entityId, entity);
                     }
 
                     if (entityType == EntityType.LIGHT) {
-                        HassLightEntity entity = new HassLightEntity(entityId, friendlyName, queue, this);
+                        HassLightEntity entity = new HassLightEntity(entityId, friendlyName, icon, buttonColor, this);
                         lights.add(entity);
                         entities.put(entityId, entity);
                     }
 
                     if (entityType == EntityType.SCENE) {
-                        HassSceneEntity entity = new HassSceneEntity(entityId, friendlyName, queue, this);
+                        HassSceneEntity entity = new HassSceneEntity(entityId, friendlyName, icon, buttonColor, this);
                         scenes.add(entity);
                         entities.put(entityId, entity);
                     }
 
                     if (entityType == EntityType.CLIMATE) {
-                        HassClimateEntity entity = new HassClimateEntity(entityId, friendlyName, queue, this);
+                        HassClimateEntity entity = new HassClimateEntity(entityId, friendlyName, icon, buttonColor, this);
                         climates.add(entity);
                         entities.put(entityId, entity);
                     }
@@ -137,17 +204,24 @@ public class HassEntities {
     }
 
     public void onPause() {
-        webSocket.close();
-        webSocket = null;
+        closeWebSocket();
     }
 
     public void onResume() {
         if (webSocket != null) {
+            closeWebSocket();
+
+        }
+        createWebsocket();
+    }
+
+    private void closeWebSocket() {
+        if (webSocket != null) {
             webSocket.end();
             webSocket.close();
             webSocket = null;
+            asyncHttpClient = null;
         }
-        createWebsocket();
     }
 
     private void setWebSocket(WebSocket webSocket) {
@@ -157,46 +231,60 @@ public class HassEntities {
         getStates();
     }
 
-    private void dispatchState(JSONObject state) {
+    private void dispatchState(final JSONObject state) {
         try {
-            HassEntity entity = getEntity(state.getString(ATTR_ENTITY_ID));
+            HassEntity entity = searchEntity(state.getString(ATTR_ENTITY_ID));
             if (entity != null) {
                 entity.processState(state);
             }
-        } catch (JSONException e) {}
+        } catch (JSONException e) {
+            Log.e("DispatchState", e.getMessage());
+        }
     }
 
+    private void processData(JSONObject row) {
+        try {
+            if (row.getInt("id") == subscriberEventId) {
+                JSONObject event = row.getJSONObject("event");
+                JSONObject data = event.getJSONObject("data");
+                JSONObject newState = data.getJSONObject("new_state");
+                dispatchState(newState);
+            }
+            if (row.getInt("id") == getStatesId) {
+                JSONArray array = row.getJSONArray("result");
+                if (!initialized) {
+                    initEntities(array);
+                }
+                for(int i = 0, count = array.length(); i< count; i++)
+                {
+                    JSONObject stateRow = array.getJSONObject(i);
+                    dispatchState(stateRow);
+                }
+                if (!initialized) {
+                    for (HassGroupEntity group : groups) {
+                        group.setChildEntities();
+                    }
+                    initialized = true;
+                    callback.platformInitialized();
+                }
+            }
+
+        } catch (JSONException e) {}
+    }
 
     private WebSocket.StringCallback getStringCallback() {
         return new WebSocket.StringCallback(){
             public void onStringAvailable(String s){
                 try {
-                    JSONObject row = new JSONObject(s);
-                    if (row.getInt("id") == subscriberEventId) {
-                        JSONObject event = row.getJSONObject("event");
-                        JSONObject data = event.getJSONObject("data");
-                        JSONObject newState = data.getJSONObject("new_state");
-                        dispatchState(newState);
-                    }
-                    if (row.getInt("id") == getStatesId) {
-                        JSONArray array = row.getJSONArray("result");
-                        if (!initialized) {
-                            initEntities(array);
+                    final JSONObject row = new JSONObject(s);
+                    Runnable dispatchState = new Runnable() {
+                        @Override
+                        public void run() {
+                            processData(row);
                         }
-                        for(int i = 0, count = array.length(); i< count; i++)
-                        {
-                            JSONObject stateRow = array.getJSONObject(i);
-                            dispatchState(stateRow);
-                        }
-                        if (!initialized) {
-                            for (HassGroupEntity group : groups) {
-                                group.setChildEntities();
-                            }
-                            initialized = true;
-                            callback.platformInitialized();
-                        }
-                    }
-
+                    };
+                    Handler mainHandler = new Handler(context.getMainLooper());
+                    mainHandler.post(dispatchState);
                 } catch (JSONException e) {}
             }
         };
@@ -205,6 +293,7 @@ public class HassEntities {
     private void subscribeStates() {
         try {
             JSONObject subscribeStates = new JSONObject();
+            subscriberEventId++;
             subscribeStates.put("id", subscriberEventId);
             subscribeStates.put("type", "subscribe_events");
             subscribeStates.put("event_type", "state_changed");
@@ -215,6 +304,7 @@ public class HassEntities {
     private void getStates() {
         try {
             JSONObject getStates = new JSONObject();
+            getStatesId++;
             getStates.put("id", getStatesId);
             getStates.put("type", "get_states");
             webSocket.send(getStates.toString());
@@ -237,7 +327,7 @@ public class HassEntities {
     }
 
     private void createWebsocket() {
-        websocketConnectCallback = new AsyncHttpClient.WebSocketConnectCallback() {
+        AsyncHttpClient.WebSocketConnectCallback websocketConnectCallback = new AsyncHttpClient.WebSocketConnectCallback() {
             @Override
             public void onCompleted(Exception ex, WebSocket webSocket) {
                 if (ex != null) {
@@ -248,10 +338,8 @@ public class HassEntities {
             }
         };
         asyncHttpClient = AsyncHttpClient.getDefaultInstance();
-        asyncHttpClient.websocket("ws://192.168.1.199:8123/api/websocket", null, websocketConnectCallback);
+        asyncHttpClient.websocket(webSocketUrl, null, websocketConnectCallback);
     }
-
-
 
 }
 

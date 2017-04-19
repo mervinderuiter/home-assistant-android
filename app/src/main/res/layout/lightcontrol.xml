@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/lightControlsView"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/entityName"
+        android:layout_width="match_parent"
+        android:layout_height="30dip"
+        android:layout_margin="20dip"
+        android:text="TextView"
+        android:textSize="18sp"
+        android:textStyle="normal|bold" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dip"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/brightTempContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="2">
+
+            <me.tankery.lib.circularseekbar.CircularSeekBar
+                android:id="@+id/brightness"
+                android:layout_width="150dip"
+                android:layout_height="match_parent"
+                android:layout_margin="20dip"
+                android:layout_weight="1"
+                android:background="@drawable/bright" />
+
+            <me.tankery.lib.circularseekbar.CircularSeekBar
+                android:id="@+id/colorTemp"
+                android:layout_width="150dip"
+                android:layout_height="match_parent"
+                android:layout_margin="20dip"
+                android:layout_weight="1"
+                android:background="@drawable/temp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="20dip"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/selectColorButton"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_marginBottom="20dip"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/mdi_invert_colors" />
+
+            <ImageButton
+                android:id="@+id/randomColorButton"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_marginBottom="20dip"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/mdi_shuffle_variant" />
+
+            <ImageButton
+                android:id="@+id/colorLoopButton"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_marginBottom="20dip"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                app:srcCompat="@drawable/mdi_loop" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

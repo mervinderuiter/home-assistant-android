@@ -1,0 +1,8 @@
+<!-- drawable/chart_histogram.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:width="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:fillColor="#000" android:pathData="M3,3H5V13H9V7H13V11H17V15H21V21H3V3Z" />
+</vector>

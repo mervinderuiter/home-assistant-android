@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">ControlSurface</string>
-
-    <string name="title_activity_main">MainActivity</string>
+    <string name="preference_file_key">controlsurface</string>
+    <string name="settings_hass_ip">ip</string>
+    <string name="settings_hass_port">port</string>
+    <string name="settings_hass_group">group</string>
+    <string name="settings_hass_default_ip">0.0.0.0</string>
+    <string name="settings_hass_default_port">8123</string>
+    <string name="settings_hass_default_group">surface</string>
 </resources>
