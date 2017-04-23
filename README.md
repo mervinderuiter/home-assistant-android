@@ -1,7 +1,7 @@
 # home-assistant-android
 A controlsurface for Home Assistant
 
-Easy to configure controlsurface for Home Assistant. Mainly targeted to wall mounted android tablets. 
+Easy to configure controlsurface for Home Assistant, targeted to wall mounted android tablets. 
 
 # Features: 
 
@@ -17,6 +17,7 @@ Easy to configure controlsurface for Home Assistant. Mainly targeted to wall mou
 * Set temperature on thermostat
 * Scripts
 * Media players
+* More methods to style your view will be added 
 
 # How to configure
 * Start the app
@@ -30,7 +31,8 @@ To add a group view, create a new Home-Assistant group and add it to the configu
 * Create a thermostat view
 To create a thermostat view, add a thermostat (for example: climate.thermostat) to the configuration group (group.surface).
 
-
+# Style your view
+Views can be styled using the Home-Assistant costomization section. The icon is automatically detected so this does not have to be configured. Change a button name by setting 'friendly_name' for your entity. Color the button by adding 'surface_button_color: '#38B9FF'' to the entity. 
 
 # Screenshots
 
