@@ -25,6 +25,7 @@ public class HassEntities {
     private ArrayList<HassLightEntity> lights = new ArrayList<>();
     private ArrayList<HassSceneEntity> scenes = new ArrayList<>();
     private ArrayList<HassClimateEntity> climates = new ArrayList<>();
+    private ArrayList<HassSensorEntity> sensors = new ArrayList<>();
 
     private HashMap<String, HassEntity> entities = new HashMap<>();
 
@@ -165,7 +166,7 @@ public class HassEntities {
                         icon = "";
                     }
 
-                    int buttonColor = Color.parseColor("#060606");
+                    int buttonColor = Color.parseColor("#404040");
                     try {
                         boolean hasButtonColor = attributes.has(SURFACE_BUTTON_COLOR);
                         if (hasButtonColor)
@@ -173,28 +174,32 @@ public class HassEntities {
                     } catch (Exception e) {}
 
 
-                    if (entityType == EntityType.GROUP) {
-                        HassGroupEntity entity = new HassGroupEntity(entityId, friendlyName, icon, buttonColor, this);
-                        groups.add(entity);
-                        entities.put(entityId, entity);
-                    }
-
-                    if (entityType == EntityType.LIGHT) {
-                        HassLightEntity entity = new HassLightEntity(entityId, friendlyName, icon, buttonColor, this);
-                        lights.add(entity);
-                        entities.put(entityId, entity);
-                    }
-
-                    if (entityType == EntityType.SCENE) {
-                        HassSceneEntity entity = new HassSceneEntity(entityId, friendlyName, icon, buttonColor, this);
-                        scenes.add(entity);
-                        entities.put(entityId, entity);
-                    }
-
-                    if (entityType == EntityType.CLIMATE) {
-                        HassClimateEntity entity = new HassClimateEntity(entityId, friendlyName, icon, buttonColor, this);
-                        climates.add(entity);
-                        entities.put(entityId, entity);
+                    switch(entityType) {
+                        case GROUP:
+                            HassGroupEntity groupEntity = new HassGroupEntity(entityId, friendlyName, icon, buttonColor, this);
+                            groups.add(groupEntity);
+                            entities.put(entityId, groupEntity);
+                            break;
+                        case LIGHT:
+                            HassLightEntity lightEntity = new HassLightEntity(entityId, friendlyName, icon, buttonColor, this);
+                            lights.add(lightEntity);
+                            entities.put(entityId, lightEntity);
+                            break;
+                        case SCENE:
+                            HassSceneEntity sceneEntity = new HassSceneEntity(entityId, friendlyName, icon, buttonColor, this);
+                            scenes.add(sceneEntity);
+                            entities.put(entityId, sceneEntity);
+                            break;
+                        case CLIMATE:
+                            HassClimateEntity climateEntity = new HassClimateEntity(entityId, friendlyName, icon, buttonColor, this);
+                            climates.add(climateEntity);
+                            entities.put(entityId, climateEntity);
+                            break;
+                        case SENSOR:
+                            HassSensorEntity sensorEntity = new HassSensorEntity(entityId, friendlyName, icon, buttonColor, this);
+                            sensors.add(sensorEntity);
+                            entities.put(entityId, sensorEntity);
+                            break;
                     }
                 }
             }

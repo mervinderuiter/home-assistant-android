@@ -4,14 +4,14 @@ package org.mervin.controlsurface;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
+
 import android.util.Log;
-import android.view.Display;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,11 +20,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.jrummyapps.android.colorpicker.ColorPickerDialog;
 import com.jrummyapps.android.colorpicker.ColorPickerDialogListener;
-import me.tankery.lib.circularseekbar.CircularSeekBar;
 
 import java.util.ArrayList;
 
@@ -43,6 +43,10 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
     interface ClimateControlInterfaceCallback {
         void updateClimateControlCallback(ClimateControlInterface entity);
+    }
+
+    interface SensorInterfaceCallback {
+        void sensorCallback(SensorInterface entity);
     }
 
     private HorizontalScrollView scrollView;
@@ -193,89 +197,90 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
     }
 
-    private void setLightControlView(final LightControlInterface entity, View lightControlView) {
+    private void setLightControlView(final LightControlInterface entity, final View lightControlView) {
         if (entity.isOn()) {
             unsetLightControlView(lightControlView);
             lightControlViews.add(lightControlView);
             lightControlView.setVisibility(View.VISIBLE);
 
             //LightControl
-            LinearLayout brightTempContainer = (LinearLayout) lightControlView.findViewById(R.id.brightTempContainer);
+
+            ImageButton closeButton = (ImageButton)lightControlView.findViewById(R.id.closeButton);
+            closeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unsetLightControlView(lightControlView);
+                }
+            });
+
+            SeekBar brightnessSeekbar = (SeekBar) lightControlView.findViewById(R.id.brightnessSeekbar);
+            brightnessSeekbar.setProgress(0);
+
+            SeekBar colorTempSeekbar = (SeekBar) lightControlView.findViewById(R.id.colorTempSeekbar);
+            colorTempSeekbar.setProgress(0);
+
             TextView entityName = (TextView) lightControlView.findViewById(R.id.entityName);
-            CircularSeekBar brightness = (CircularSeekBar) lightControlView.findViewById(R.id.brightness);
-            CircularSeekBar colorTemp = (CircularSeekBar) lightControlView.findViewById(R.id.colorTemp);
             ImageButton selectColorButton = (ImageButton) lightControlView.findViewById(R.id.selectColorButton);
             ImageButton randomColorButton = (ImageButton) lightControlView.findViewById(R.id.randomColorButton);
             ImageButton colorLoopButton = (ImageButton) lightControlView.findViewById(R.id.colorLoopButton);
-            brightness.setProgress(0);
-            colorTemp.setProgress(0);
-            colorTemp.setCircleStrokeWidth(50);
-            colorTemp.setStartAngle(120);
-            colorTemp.setEndAngle(60);
-            brightness.setCircleStrokeWidth(50);
-            brightness.setStartAngle(120);
-            brightness.setEndAngle(60);
+
 
             entityName.setText(entity.getName());
-            boolean visible = false;
             boolean update = false;
 
             if (entity != null) {
                 if (entity.hasBrightness()) {
-                    brightness.setVisibility(View.VISIBLE);
-                    brightness.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+                    brightnessSeekbar.setVisibility(View.VISIBLE);
+                    brightnessSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
-                        public void onProgressChanged(CircularSeekBar seekBar, float progress, boolean fromUser) {
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             if (fromUser) {
-                                double progressMultiplyer = progress / 100;
-                                double alpha = (175 * progressMultiplyer);
-                                seekBar.setCircleProgressColor(Color.argb((int)(alpha + 80), 255, 255, 255));
-                                seekBar.setCircleColor(Color.argb((int)alpha, 255, 255, 255));
-                                entity.setBrightness((int)(255 * progressMultiplyer));
+                                double multiplier = (double) progress / 20d;
+                                int brightness = (int)(254d * multiplier);
+                                entity.setBrightness(brightness);
                             }
                         }
 
                         @Override
-                        public void onStartTrackingTouch(CircularSeekBar seekBar) {
+                        public void onStartTrackingTouch(SeekBar seekBar) {
 
                         }
 
                         @Override
-                        public void onStopTrackingTouch(CircularSeekBar seekBar) {
+                        public void onStopTrackingTouch(SeekBar seekBar) {
 
                         }
                     });
-                    visible = true;
                     update = true;
                 } else {
-                    brightness.setVisibility(View.GONE);
+                    brightnessSeekbar.setVisibility(View.GONE);
                 }
 
                 if (entity.hasColorTemp()) {
-                    colorTemp.setVisibility(View.VISIBLE);
-                    colorTemp.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+                    colorTempSeekbar.setVisibility(View.VISIBLE);
+                    colorTempSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
-                        public void onProgressChanged(CircularSeekBar seekBar, float progress, boolean fromUser) {
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                             if (fromUser) {
-                                double progressMultiplyer = progress / 100;
-                                double kelvin = 6500d - (4300d * progressMultiplyer);
-                                int[] rgb = ColorTempToRgb.getRGBFromK((int)kelvin);
-                                seekBar.setCircleProgressColor(Color.rgb((int)(rgb[0] * 0.7), rgb[1], rgb[2]));
-                                seekBar.setCircleColor(Color.argb(150, (int)(rgb[0] * 0.7), rgb[1], rgb[2]));
-                                entity.setColorTemp((int)(347 * progressMultiplyer));
+                                double multiplier = (double) progress / 20d;
+                                int colorTemp = (int)(347d * multiplier);
+                                entity.setColorTemp(colorTemp);
                             }
                         }
 
                         @Override
-                        public void onStartTrackingTouch(CircularSeekBar seekBar) {}
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+
+                        }
 
                         @Override
-                        public void onStopTrackingTouch(CircularSeekBar seekBar) {}
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+
+                        }
                     });
-                    visible = true;
                     update = true;
                 } else {
-                    colorTemp.setVisibility(View.GONE);
+                    colorTempSeekbar.setVisibility(View.GONE);
                 }
 
                 if (entity.hasRgb()) {
@@ -288,7 +293,6 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                             colorPickerBuilder.show(thisActivity);
                         }
                     });
-                    visible = true;
                     if (entity.hasColorLoop()) {
                         colorLoopButton.setVisibility(View.VISIBLE);
                         colorLoopButton.setOnClickListener(new View.OnClickListener() {
@@ -297,7 +301,6 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                                 entity.setColorLoop();
                             }
                         });
-                        visible = true;
                     } else {
                         colorLoopButton.setVisibility(View.GONE);
                     }
@@ -310,7 +313,6 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                                 entity.setRandom();
                             }
                         });
-                        visible = true;
                     } else {
                         randomColorButton.setVisibility(View.GONE);
                     }
@@ -321,17 +323,6 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                 }
             }
 
-            if (visible) {
-
-                Display display = getWindowManager().getDefaultDisplay();
-                DisplayMetrics outMetrics = new DisplayMetrics ();
-                display.getMetrics(outMetrics);
-
-                int dimension = (int)(outMetrics.heightPixels / 2.4);
-                brightness.setLayoutParams(new LinearLayout.LayoutParams(dimension, dimension, 0));
-                colorTemp.setLayoutParams(new LinearLayout.LayoutParams(dimension, dimension, 0));
-            }
-
             if (update) {
                 updateLightControls(entity, lightControlView);
             }
@@ -340,22 +331,16 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
     private void updateLightControls(LightControlInterface entity, View lightControlView) {
         if (lightControlViews.contains(lightControlView)) {
-            final CircularSeekBar brightness = (CircularSeekBar) lightControlView.findViewById(R.id.brightness);
-            final CircularSeekBar colorTemp = (CircularSeekBar) lightControlView.findViewById(R.id.colorTemp);
+            final SeekBar brightnessSeekbar = (SeekBar) lightControlView.findViewById(R.id.brightnessSeekbar);
+            final SeekBar colorTempSeekbar = (SeekBar) lightControlView.findViewById(R.id.colorTempSeekbar);
 
-            double colorTempMultiplyer = entity.getColorTemp() / 347d;
-            double kelvin = 6500d - (4300d * colorTempMultiplyer);
-            int[] rgb = ColorTempToRgb.getRGBFromK((int)kelvin);
-            colorTemp.setCircleProgressColor(Color.rgb((int)(rgb[0] * 0.7), rgb[1], rgb[2]));
-            colorTemp.setCircleColor(Color.argb(150, (int)(rgb[0] * 0.7), rgb[1], rgb[2]));
-            colorTemp.setProgress((int)(colorTempMultiplyer * 100));
+            double colorTempMultiplier = (double) Math.round((entity.getColorTemp() / 347d)*100) / 100;
+            int colorTempProgress = (int)(20 * colorTempMultiplier);
+            colorTempSeekbar.setProgress(colorTempProgress);
 
-            int brightnessValue = entity.getBrightness();
-            double brightnessMultiplyer = brightnessValue / 255d;
-            double alpha = (175 * brightnessMultiplyer);
-            brightness.setCircleProgressColor(Color.argb((int)(alpha + 80), 255, 255, 255));
-            brightness.setCircleColor(Color.argb((int)alpha, 255, 255, 255));
-            brightness.setProgress((int)(brightnessMultiplyer * 100));
+            double brightnessMultiplier = (double) Math.round((entity.getBrightness() / 254d)*100) / 100;
+            int brightnessProgress = (int)(20 * brightnessMultiplier);
+            brightnessSeekbar.setProgress(brightnessProgress);
         }
     }
 
@@ -382,11 +367,21 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
         childEntityContainer.setVisibility(View.GONE);
     }
 
-    private void showChildEntityView(ArrayList<LightControlInterface> lightControlInterfaces, View childEntityContainer, View lightControlView) {
+    private void showChildEntityView(ArrayList<LightControlInterface> lightControlInterfaces, final View childEntityContainer, View lightControlView, int color) {
 
         childEntityViews.add(childEntityContainer);
         childEntityContainer.setVisibility(View.VISIBLE);
+
         LinearLayout childEntityView = (LinearLayout)childEntityContainer.findViewById(R.id.childEntityView);
+        childEntityView.removeAllViews();
+
+        ImageButton closeButton = (ImageButton)childEntityContainer.findViewById(R.id.closeButton);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideChildEntityView(childEntityContainer);
+            }
+        });
         childEntityView.removeAllViews();
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -402,12 +397,12 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                 if (icon.length() > 0 && icon.substring(0, 4).equals("mdi:")) {
 
                     ImageView childImage = (ImageView)child.findViewById(R.id.buttonImage);
-                    Drawable drawable = thisActivity.getDrawable(getHassIconResource(lightControlInterface.getIcon()));
-                    drawable.setTint(getResources().getColor(R.color.white));
-                    childImage.setBackground(drawable);
+                    Drawable iconDrawable = thisActivity.getDrawable(getHassIconResource(lightControlInterface.getIcon()));
+                    iconDrawable.setTint(getResources().getColor(R.color.white));
+                    childImage.setBackground(iconDrawable);
                 }
             } catch (Exception e) {
-                Log.e("LightControlButtonSettings", e.getMessage());
+                Log.e("ChildEntityView", e.getMessage());
             }
 
             childEntityView.addView(child);
@@ -449,26 +444,69 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
         if (group != null) {
             for (HassEntity entity : group.getEntities()) {
+
+                View shortcutButton = getLayoutInflater().inflate(R.layout.shortcut_button, null);
+
+                Drawable drawable = thisActivity.getDrawable(getHassIconResource(entity.getIcon()));
+                drawable.setTint(getResources().getColor(R.color.white));
+
+                ImageView childImage = (ImageView)shortcutButton.findViewById(R.id.buttonImage);
+                childImage.setBackground(drawable);
+
+                shortcutButtons.addView(shortcutButton);
+
                 if (entity instanceof HassGroupEntity) {
-
-                    View shortcutButton = getLayoutInflater().inflate(R.layout.shortcut_button, null);
-
-                    Drawable drawable = thisActivity.getDrawable(getHassIconResource(entity.getIcon()));
-                    drawable.setTint(getResources().getColor(R.color.white));
-
-                    ImageView childImage = (ImageView)shortcutButton.findViewById(R.id.buttonImage);
-                    childImage.setBackground(drawable);
-
-                    shortcutButtons.addView(shortcutButton);
-
                     setHassButtonGroup((HassGroupEntity) entity, shortcutButton);
+                }
 
+                if (entity instanceof HassClimateEntity) {
+                    final View climateContainer = getLayoutInflater().inflate(R.layout.climate_big, null);
+                    scrollViewItems.addView(climateContainer);
+                    setClimateView(climateContainer, (HassClimateEntity)entity);
+
+                    shortcutButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            scrollView.smoothScrollTo(climateContainer.getLeft(), 0);
+                        }
+                    });
                 }
             }
         } else {
             showSettings();
         }
 
+    }
+
+    private void setClimateView(final View climateContianer, HassClimateEntity climateEntity) {
+        climateEntity.setCallback(new ClimateControlInterfaceCallback() {
+            @Override
+            public void updateClimateControlCallback(ClimateControlInterface entity) {
+                updateClimateView(climateContianer, entity);
+            }
+        });
+    }
+
+    private void updateClimateView(View climateContianer, ClimateControlInterface entity) {
+        TextView targetTemp = (TextView)climateContianer.findViewById(R.id.targetTemp);
+        TextView currentTemp = (TextView)climateContianer.findViewById(R.id.currentTemp);
+        ImageView eco = (ImageView)climateContianer.findViewById(R.id.eco);
+        LinearLayout background = (LinearLayout)climateContianer.findViewById(R.id.background);
+
+        targetTemp.setText(Float.toString(entity.getTargetTemp()) + " " + entity.getUnit());
+        currentTemp.setText(Float.toString(entity.getTemp()) + " " + entity.getUnit());
+
+        if (entity.isEco()) {
+            eco.setVisibility(View.VISIBLE);
+        } else {
+            eco.setVisibility(View.INVISIBLE);
+        }
+
+        if (entity.isHeating()) {
+            background.setBackgroundResource(R.drawable.climate_bg_heat);
+        } else {
+            background.setBackgroundResource(R.drawable.climate_bg_off);
+        }
     }
 
     private void setHassButtonGroup(HassGroupEntity groupEntity, View shortcutButton) {
@@ -496,7 +534,9 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
             View child = getLayoutInflater().inflate(R.layout.lightcontrol_list_item_medium, null);
             LinearLayout buttonLayout = (LinearLayout)child.findViewById(R.id.buttonLayout);
-            buttonLayout.setBackground(new ColorDrawable(entity.getColor()));
+            Drawable background = buttonLayout.getBackground();
+            background.setTint(entity.getColor());
+
 
             TextView childText = (TextView)child.findViewById(R.id.buttonText);
             childText.setText(entity.getName());
@@ -524,32 +564,22 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
             if (entity instanceof SceneInterface) {
                 setSceneButton((SceneInterface) entity, child);
             }
+
+            if (entity instanceof SensorInterface) {
+                setSensor((SensorInterface) entity, child);
+            }
         }
     }
 
     private void setLightControlButton(final LightControlInterface lightControlInterface, final View button, final View childEntityView, final View lightControlView) {
         updateButton(lightControlInterface, button);
-        lightControlInterface.setCallback(new LightControlInterfaceCallback() {
-            @Override
-            public void unsetLightControlCallback(){
-                unsetLightControlView(lightControlView);
-            }
-            @Override
-            public void updateLightControlCallback(LightControlInterface entity){
-                updateLightControls(entity, lightControlView);
-            }
-            @Override
-            public void updateButtonCallback(LightControlInterface entity){
-                updateButton(entity, button);
-            }
-        });
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 lightControlInterface.switchEntity();
                 if (lightControlInterface.isOn()) {
                     if (lightControlInterface.isGroup() && lightControlInterface.getLightControlEntities().size() > 1) {
-                        showChildEntityView(lightControlInterface.getLightControlEntities(), childEntityView, lightControlView);
+                        showChildEntityView(lightControlInterface.getLightControlEntities(), childEntityView, lightControlView, lightControlInterface.getColor());
                     }
                     setLightControlView(lightControlInterface, lightControlView);
                 } else {
@@ -565,10 +595,25 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
             @Override
             public boolean onLongClick(View v) {
                 if (lightControlInterface.isGroup() && lightControlInterface.getLightControlEntities().size() > 1) {
-                    showChildEntityView(lightControlInterface.getLightControlEntities(), childEntityView, lightControlView);
+                    showChildEntityView(lightControlInterface.getLightControlEntities(), childEntityView, lightControlView, lightControlInterface.getColor());
                 }
                 setLightControlView(lightControlInterface, lightControlView);
                 return true;
+            }
+        });
+
+        lightControlInterface.setCallback(new LightControlInterfaceCallback() {
+            @Override
+            public void unsetLightControlCallback(){
+                unsetLightControlView(lightControlView);
+            }
+            @Override
+            public void updateLightControlCallback(LightControlInterface entity){
+                updateLightControls(entity, lightControlView);
+            }
+            @Override
+            public void updateButtonCallback(LightControlInterface entity){
+                updateButton(entity, button);
             }
         });
     }
@@ -580,5 +625,19 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
                 sceneInterface.turnOn();
             }
         });
+    }
+
+    private void setSensor(SensorInterface sensorInterface, final View button) {
+        sensorInterface.setCallback(new SensorInterfaceCallback() {
+            @Override
+            public void sensorCallback(SensorInterface entity) {
+                setSensorState(entity, button);
+            }
+        });
+    }
+
+    private void setSensorState(SensorInterface sensorInterface, View button) {
+        TextView childText = (TextView)button.findViewById(R.id.buttonText);
+        childText.setText(sensorInterface.getName() + ": " + sensorInterface.getState());
     }
 }

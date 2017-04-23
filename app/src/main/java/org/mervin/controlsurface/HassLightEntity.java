@@ -34,6 +34,7 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
         this.callback = callback;
+        updateLightControls();
     }
 
     public void setRgb(int[] rgb) {
@@ -142,9 +143,6 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
     }
 
     private void sendSwitchRequest(String action) {
-
-        String url = base_url + URL_SERVICES + DOMAIN_LIGHT + action;
-
         try {
             JSONObject payload = new JSONObject();
             payload.put(ATTR_ENTITY_ID, entityName);
@@ -168,7 +166,6 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
                 }
             }
             hassEntities.callService(DOMAIN_LIGHT, action, payload);
-            //createPostRequest(url, payload.toString().getBytes());
         }
         catch (JSONException e) {
             e.printStackTrace();
@@ -181,27 +178,7 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
             String newState = row.getString(ATTR_STATE);
             JSONObject attributes = row.getJSONObject(ATTR);
 
-            if (friendlyName.equals("")) {
-                friendlyName = attributes.getString(ATTR_FRIENDLY_NAME);
-            }
-
-            if (!hasBrightness && attributes.has(ATTR_BRIGHTNESS)) {
-                // Only enable this once
-                hasBrightness = true;
-            }
-
-            if (!hasColorTemp && attributes.has(ATTR_COLOR_TEMP)) {
-                // Only enable this once
-                String id = getId();
-                hasColorTemp = true;
-            }
-
-            if (!hasRgb && attributes.has(ATTR_RGB_COLOR)) {
-                // Only enable this once
-                hasRgb = true;
-            }
-
-            if ((!hasRandom || !hasColorLoop) && attributes.has(ATTR_EFFECT_LIST)) {
+            if (attributes.has(ATTR_EFFECT_LIST)) {
                 // Only enable this once
                 JSONArray effectArray = attributes.getJSONArray(ATTR_EFFECT_LIST);
                 for(int i = 0, count = effectArray.length(); i< count; i++)
@@ -214,22 +191,26 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
                 }
             }
 
-            if (hasBrightness && attributes.has(ATTR_BRIGHTNESS)) {
-                int newBrightness = Integer.parseInt(attributes.getString(ATTR_BRIGHTNESS));
-                if (brightness != newBrightness) {
-                    brightness = newBrightness;
-                }
+            if (attributes.has(ATTR_BRIGHTNESS)) {
+                hasBrightness = true;
+                brightness = Integer.parseInt(attributes.getString(ATTR_BRIGHTNESS));
             }
 
-            if (hasColorTemp && attributes.has(ATTR_COLOR_TEMP)) {
-                int newColorTemp = Integer.parseInt(attributes.getString(ATTR_COLOR_TEMP));
-                if (colorTemp != newColorTemp) {
-                    colorTemp = newColorTemp;
-                }
+            if (attributes.has(ATTR_COLOR_TEMP)) {
+                hasColorTemp = true;
+                colorTemp = Integer.parseInt(attributes.getString(ATTR_COLOR_TEMP));
             }
+
+            if (attributes.has(ATTR_RGB_COLOR)) {
+                // Save state?
+                hasRgb = true;
+            }
+
             if (!state.equals(newState)) {
                 updateState(newState);
             }
+
+            updateLightControls();
 
         } catch (Exception e) {
             Log.e("HassEntity", "exception", e);
@@ -243,7 +224,6 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
             if (state.equals(STATE_OFF)){
                 unsetLightControls();
             }
-            updateLightControls();
         }
     }
 }

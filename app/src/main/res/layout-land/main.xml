@@ -2,9 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#373F48">
+    android:background="@android:color/black"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/shortcutButtons"
@@ -16,12 +17,12 @@
     </LinearLayout>
 
     <HorizontalScrollView
+        android:id="@+id/scrollView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbarAlwaysDrawHorizontalTrack="true"
         android:layout_marginLeft="20dip"
-        android:id="@+id/scrollView">
+        android:fillViewport="true"
+        android:scrollbarAlwaysDrawHorizontalTrack="true">
 
         <LinearLayout
             android:id="@+id/scrollViewItems"

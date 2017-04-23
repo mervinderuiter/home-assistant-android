@@ -25,6 +25,9 @@ public final class HassConstants {
     public static final String ATTR_STATE = "state";
     public static final String ATTR_FRIENDLY_NAME = "friendly_name";
     public static final String ATTR_ICON = "icon";
+    public static final String CURRENT_TEMP = "current_temperature";
+    public static final String TEMP = "temperature";
+    public static final String TEMP_UNIT = "unit_of_measurement";
     public static final String ATTR = "attributes";
     public static final String EFFECT_RANDOM = "random";
     public static final String EFFECT_COLOR_LOOP = "colorloop";
@@ -41,6 +44,7 @@ public final class HassConstants {
         SCENE,
         LIGHT,
         CLIMATE,
+        SENSOR,
         UNKNOWN
     }
 
@@ -63,6 +67,14 @@ public final class HassConstants {
 
         if (entityName.substring(0,5).equals("light")){
             return EntityType.LIGHT;
+        }
+
+        if (entityName.substring(0,7).equals("climate")){
+            return EntityType.CLIMATE;
+        }
+
+        if (entityName.substring(0,6).equals("sensor")){
+            return EntityType.SENSOR;
         }
 
         return EntityType.UNKNOWN;

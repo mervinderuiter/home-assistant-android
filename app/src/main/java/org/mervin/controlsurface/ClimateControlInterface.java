@@ -10,6 +10,7 @@ public interface ClimateControlInterface {
     boolean isHeating();
     float getTemp();
     float getTargetTemp();
+    String getUnit();
     void setTargetTemp(float target);
     boolean isAway();
     void setCallback(Surface.ClimateControlInterfaceCallback callback);

@@ -17,15 +17,6 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
     private ArrayList<HassLightEntity> lightControlEntities = new ArrayList<>();
     private ArrayList<HassEntity> entities = new ArrayList<>();
     private ArrayList<String> childIds = new ArrayList<>();
-    private boolean childEntitiesSet = false;
-
-    private ColorType colorType = ColorType.UNKNOWN;
-    public int brightness = 0;
-    private int[] rgb;
-    public int colorTemp = COLOR_TEMP_OFFSET;
-    public boolean hasBrightness = false;
-    public boolean hasColorTemp = false;
-    public boolean hasRgb = false;
 
     public HassGroupEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
         super(entityId, friendlyName, icon, color, hassEntities);
@@ -55,6 +46,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
         this.callback = callback;
+        callback.updateLightControlCallback(this);
     }
 
     public void setRgb(int[] rgb) {
@@ -248,7 +240,6 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
                 }
 
             }
-            childEntitiesSet = true;
         }
     }
 

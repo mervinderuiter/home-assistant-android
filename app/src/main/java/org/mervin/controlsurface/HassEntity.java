@@ -44,6 +44,10 @@ public class HassEntity {
         entityType = getEntityType(entityId);
     }
 
+    public String getState() {
+        return state;
+    }
+
     public boolean isGroup(){
         return false;
     }

@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dip"
-        android:background="@color/list_item_background"
+        android:background="@drawable/button_bg"
+        android:backgroundTint="#aa4a4a4a"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">

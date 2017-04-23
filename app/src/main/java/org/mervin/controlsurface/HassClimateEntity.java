@@ -17,6 +17,7 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
     private boolean isAway;
     private float currentTemp;
     private float targetTemp;
+    private String unit;
 
     public HassClimateEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
         super(entityId, friendlyName, icon, color, hassEntities);
@@ -24,6 +25,7 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
 
     public void setCallback(Surface.ClimateControlInterfaceCallback callback) {
         this.callback = callback;
+        callback.updateClimateControlCallback(this);
     }
 
     public boolean isOn() {
@@ -39,11 +41,15 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
     }
 
     public boolean isAway(){
-        return true;
+        return isAway;
     }
 
     public float getTemp(){
         return currentTemp;
+    }
+
+    public String getUnit(){
+        return unit;
     }
 
     public void setTargetTemp(float target){
@@ -58,32 +64,27 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
     @Override
     public void processState(JSONObject row) {
         try {
-            if (getEntityType(row.getString(ATTR_ENTITY_ID)).equals(HassConstants.EntityType.GROUP)){
-                String newState = row.getString(ATTR_STATE);
-                JSONObject attributes = row.getJSONObject(ATTR);
+            state = row.getString(ATTR_STATE);
+            JSONObject attributes = row.getJSONObject(ATTR);
 
-                if (!state.equals(newState)) {
-                    updateState(newState);
-                }
+            if (attributes.has(TEMP)) {
+                targetTemp = Float.parseFloat(attributes.getString(TEMP));
+            }
+
+            if (attributes.has(CURRENT_TEMP)) {
+                currentTemp = Float.parseFloat(attributes.getString(CURRENT_TEMP));
+            }
+
+            if (attributes.has(TEMP_UNIT)) {
+                unit = attributes.getString(TEMP_UNIT);
+            }
+
+            if (callback != null) {
+                callback.updateClimateControlCallback(this);
             }
 
         } catch (Exception e) {
             Log.e("HassEntity", "exception", e);
         }
-
     }
-
-    private void updateState(String newState) {
-        if (!state.equals(newState)) {
-            state = newState;
-            updateClimateControls();
-        }
-    }
-
-    private void updateClimateControls() {
-        if (callback != null) {
-            callback.updateClimateControlCallback(this);
-        }
-    }
-
 }
