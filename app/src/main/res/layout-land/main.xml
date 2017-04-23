@@ -37,6 +37,12 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/setupError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent" />
+
                 <EditText
                     android:id="@+id/hassIpAddress"
                     android:layout_width="match_parent"
@@ -54,12 +60,22 @@
                     android:inputType="number" />
 
                 <EditText
+                    android:id="@+id/hassPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Password"
+                    android:inputType="textPersonName" />
+
+                <EditText
                     android:id="@+id/hassGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="Group"
                     android:inputType="textPersonName" />
+
+
 
                 <Button
                     android:id="@+id/settingsSubmitButton"

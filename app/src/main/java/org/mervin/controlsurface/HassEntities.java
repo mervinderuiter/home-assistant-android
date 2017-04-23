@@ -34,24 +34,25 @@ public class HassEntities {
     private int callServiceId = 30000;
 
     AsyncHttpClient asyncHttpClient;
-    WebSocket webSocket;
+    WebSocket webSocket = null;
 
     private Context context;
 
     public boolean initialized = false;
 
     private int port;
+    private boolean authenticated = false;
+    private String password;
     private String ip;
     private String webSocketUrl;
 
-    public HassEntities(Context context, String ip, int port) {
+    public HassEntities(Context context, String ip, int port, String password) {
         this.context = context;
         this.ip = ip;
         this.port = port;
+        this.password = password;
 
         webSocketUrl = "ws://" + ip + ":" + Integer.toString(port) + "/api/websocket";
-
-        start();
     }
 
     public void stop(){
@@ -68,11 +69,6 @@ public class HassEntities {
         if (!ip.equals(R.string.settings_hass_default_ip)) {
             createWebsocket();
         }
-    }
-
-    public void restart() {
-        stop();
-        start();
     }
 
     public HassLightEntity searchLightEntity(String entityId) {
@@ -141,8 +137,6 @@ public class HassEntities {
     protected ArrayList<HassLightEntity> getLights() {
         return lights;
     }
-
-
 
     private void initEntities(JSONArray array) {
         try {
@@ -213,10 +207,6 @@ public class HassEntities {
     }
 
     public void onResume() {
-        if (webSocket != null) {
-            closeWebSocket();
-
-        }
         createWebsocket();
     }
 
@@ -232,8 +222,6 @@ public class HassEntities {
     private void setWebSocket(WebSocket webSocket) {
         this.webSocket = webSocket;
         this.webSocket.setStringCallback(getStringCallback());
-        subscribeStates();
-        getStates();
     }
 
     private void dispatchState(final JSONObject state) {
@@ -247,15 +235,35 @@ public class HassEntities {
         }
     }
 
+    private void sendAuth() {
+        try {
+            JSONObject auth = new JSONObject();
+            auth.put("type", "auth");
+            auth.put("api_password", password);
+            webSocket.send(auth.toString());
+        } catch (JSONException e) {}
+    }
+
+    private void authFailed() {
+        callback.authFailed();
+    }
+
     private void processData(JSONObject row) {
         try {
-            if (row.getInt("id") == subscriberEventId) {
+            if (row.has("type") && row.getString("type").equals("auth_ok")) {
+                authenticated = true;
+                subscribeStates();
+                getStates();
+            } else if (row.has("type") && row.getString("type").equals("auth_required")) {
+                sendAuth();
+            } else if (row.has("type") && row.getString("type") == "auth_invalid") {
+                authFailed();
+            } else if (row.has("id") && row.getInt("id") == subscriberEventId) {
                 JSONObject event = row.getJSONObject("event");
                 JSONObject data = event.getJSONObject("data");
                 JSONObject newState = data.getJSONObject("new_state");
                 dispatchState(newState);
-            }
-            if (row.getInt("id") == getStatesId) {
+            } else if (row.has("id") && row.getInt("id") == getStatesId) {
                 JSONArray array = row.getJSONArray("result");
                 if (!initialized) {
                     initEntities(array);
@@ -274,7 +282,9 @@ public class HassEntities {
                 }
             }
 
-        } catch (JSONException e) {}
+        } catch (JSONException e) {
+            Log.e("Init", e.getMessage());
+        }
     }
 
     private WebSocket.StringCallback getStringCallback() {
@@ -318,7 +328,7 @@ public class HassEntities {
 
     public void callService(String domain, String service, JSONObject service_data) {
         try {
-            callServiceId += 1;
+            callServiceId++;
             JSONObject callService = new JSONObject();
             callService.put("id", callServiceId);
             callService.put("type", "call_service");
@@ -332,18 +342,20 @@ public class HassEntities {
     }
 
     private void createWebsocket() {
-        AsyncHttpClient.WebSocketConnectCallback websocketConnectCallback = new AsyncHttpClient.WebSocketConnectCallback() {
-            @Override
-            public void onCompleted(Exception ex, WebSocket webSocket) {
-                if (ex != null) {
-                    ex.printStackTrace();
-                    return;
+        if (webSocket == null) {
+            AsyncHttpClient.WebSocketConnectCallback websocketConnectCallback = new AsyncHttpClient.WebSocketConnectCallback() {
+                @Override
+                public void onCompleted(Exception ex, WebSocket webSocket) {
+                    if (ex != null) {
+                        ex.printStackTrace();
+                        return;
+                    }
+                    setWebSocket(webSocket);
                 }
-                setWebSocket(webSocket);
-            }
-        };
-        asyncHttpClient = AsyncHttpClient.getDefaultInstance();
-        asyncHttpClient.websocket(webSocketUrl, null, websocketConnectCallback);
+            };
+            asyncHttpClient = AsyncHttpClient.getDefaultInstance();
+            asyncHttpClient.websocket(webSocketUrl, null, websocketConnectCallback);
+        }
     }
 
 }

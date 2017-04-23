@@ -2,6 +2,7 @@ package org.mervin.controlsurface;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -33,6 +35,7 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
     interface PlatformInitializedCallback {
         void platformInitialized();
+        void authFailed();
     }
 
     interface LightControlInterfaceCallback {
@@ -58,6 +61,8 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
     private EditText settingsHassIp;
     private EditText settingsHassPort;
     private EditText settingsHassGroup;
+    private EditText settingsHassPassword;
+    private TextView setupError;
 
     private Activity thisActivity;
 
@@ -74,6 +79,7 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
     private String hassIp;
     private int hassPort;
     private String hassGroup;
+    private String hassPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +97,7 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
         colorPicker = new ColorPickerDialog();
 
         initHassEntities();
-
+        // Will be started with onResume
     }
 
     private void storeSettings() {
@@ -99,11 +105,13 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
         hassIp = settingsHassIp.getText().toString();
         hassPort = Integer.parseInt(settingsHassPort.getText().toString());
         hassGroup = settingsHassGroup.getText().toString();
+        hassPassword = settingsHassPassword.getText().toString();
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.settings_hass_ip), hassIp);
         editor.putInt(getString(R.string.settings_hass_port), hassPort);
         editor.putString(getString(R.string.settings_hass_group), hassGroup);
+        editor.putString(getString(R.string.settings_hass_password), hassPassword);
         editor.commit();
 
         scrollViewItems.removeAllViews();
@@ -112,28 +120,51 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
             hassEntities = null;
         }
         initHassEntities();
+        startHassEntities();
     }
 
     private void initHassEntities() {
-        hassEntities = new HassEntities(this, hassIp, hassPort);
+        hassEntities = new HassEntities(this, hassIp, hassPort, hassPassword);
+
         hassEntities.callback = new PlatformInitializedCallback() {
             @Override
             public void platformInitialized(){
                 hideSettings();
+                setupError.setText("");
                 setHassEntities();
+                hideSoftKeyboard();
+            }
+            public void authFailed() {
+                setupError.setText("Authentication failed");
             }
         };
     }
+
+    private void startHassEntities() {
+        if (hassEntities != null) {
+            hassEntities.start();
+        }
+    }
+
+    public void hideSoftKeyboard() {
+        if(getCurrentFocus()!=null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
 
     private void getSettings() {
 
         hassIp = sharedPref.getString(getString(R.string.settings_hass_ip), getString(R.string.settings_hass_default_ip));
         hassPort = sharedPref.getInt(getString(R.string.settings_hass_port), Integer.parseInt(getString(R.string.settings_hass_default_port)));
         hassGroup = sharedPref.getString(getString(R.string.settings_hass_group), getString(R.string.settings_hass_default_group));
+        hassPassword = sharedPref.getString(getString(R.string.settings_hass_password), "");
 
         settingsHassIp.setText(hassIp);
         settingsHassPort.setText(Integer.toString(hassPort));
         settingsHassGroup.setText(hassGroup);
+        settingsHassPassword.setText(hassPassword);
     }
 
     private void hideSettings() {
@@ -157,6 +188,8 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
         settingsHassIp = (EditText) findViewById(R.id.hassIpAddress);
         settingsHassPort = (EditText) findViewById(R.id.hassPort);
         settingsHassGroup = (EditText) findViewById(R.id.hassGroup);
+        settingsHassPassword = (EditText) findViewById(R.id.hassPassword);
+        setupError = (TextView) findViewById(R.id.setupError);
 
         settingsSubmitButton = (Button) findViewById(R.id.settingsSubmitButton);
         settingsSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -178,7 +211,6 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
 
     @Override
     protected void onResume() {
-        //TODO: Handle websocket
         hassEntities.onResume();
         super.onResume();
     }
@@ -474,6 +506,7 @@ public class Surface extends AppCompatActivity implements ColorPickerDialogListe
             }
         } else {
             showSettings();
+            setupError.setText("Group not found");
         }
 
     }
