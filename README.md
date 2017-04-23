@@ -3,6 +3,8 @@ A controlsurface for Home Assistant
 
 Easy to configure controlsurface for Home Assistant, targeted to wall mounted android tablets. 
 
+Chat: https://gitter.im/home-assistant-android/Lobby
+
 # Features: 
 
 * Easy configuration trough Home-Assistant
