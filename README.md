@@ -27,9 +27,9 @@ Easy to configure controlsurface for Home Assistant, targeted to wall mounted an
 
 # Create your view (or multiple)
 * Create a group view
-To add a group view, create a new Home-Assistant group and add it to the configuration group (group.surface). Add lights, scenes or sensors to the group. The group will be displayed in a column on the screen. Restart Home-Assistant to apply settings. 
+To add a group view, create a new Home-Assistant group and add it to the configuration group (group.surface). Add lights, scenes or sensors to the group. The group will be displayed in a column on the screen. Restart Home-Assistant to apply settings. In the customization section of HASS enter an icon for the group, surface will use this a the shortcut button. 
 * Create a thermostat view
-To create a thermostat view, add a thermostat (for example: climate.thermostat) to the configuration group (group.surface).
+To create a thermostat view, add a thermostat (for example: climate.thermostat) to the configuration group (group.surface). In the customization section of HASS enter an icon for the thermostat, surface will use this a the shortcut button. 
 
 # Style your view
 Views can be styled using the Home-Assistant costomization section. The icon is automatically detected so this does not have to be configured. Change a button name by setting 'friendly_name' for your entity. Color the button by adding 'surface_button_color: '#38B9FF'' to the entity. 
