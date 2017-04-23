@@ -3,7 +3,7 @@ A controlsurface for Home Assistant
 
 Easy to configure controlsurface for Home Assistant. Mainly targeted to wall mounted android tablets. 
 
-Features: 
+# Features: 
 
 * Easy configuration trough Home-Assistant
 * Uses websocket API
@@ -11,5 +11,12 @@ Features:
 * Color temperature to RGB translation
 * Thermostat control
 * Sensors
+* Uses same MDI icons as Home-Assistant
+
+# What doesn't work (yet)
+* Set temperature on thermostat
+* Scripts
+* Media players
+
 
 
