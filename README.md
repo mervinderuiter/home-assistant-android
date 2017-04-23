@@ -18,5 +18,23 @@ Easy to configure controlsurface for Home Assistant. Mainly targeted to wall mou
 * Scripts
 * Media players
 
+# How to configure
+* Start the app
+* Enter the Home-Assistant IP and Port
+* Enter a configuration group (for example: group.surface)
+* Create group.surface in Home-Assistant
 
+# Create your view (or multiple)
+* Create a group view
+To add a group view, create a new Home-Assistant group and add it to the configuration group (group.surface). Add lights, scenes or sensors to the group. The group will be displayed in a column on the screen. Restart Home-Assistant to apply settings. 
+* Create a thermostat view
+To create a thermostat view, add a thermostat (for example: climate.thermostat) to the configuration group (group.surface).
+
+
+
+# Screenshots
+
+![1](https://cloud.githubusercontent.com/assets/16005217/25311945/374bc684-280d-11e7-8711-cc81e0d9d42c.png)
+![2](https://cloud.githubusercontent.com/assets/16005217/25311946/394f27d2-280d-11e7-8799-4fd70294864d.png)
+![3](https://cloud.githubusercontent.com/assets/16005217/25311947/3ac1dac4-280d-11e7-87e4-1fc5b1084f33.png)
 
