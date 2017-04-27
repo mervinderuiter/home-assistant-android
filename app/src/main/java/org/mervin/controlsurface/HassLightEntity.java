@@ -9,11 +9,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import static org.mervin.controlsurface.HassConstants.*;
 
 public class HassLightEntity extends HassEntity implements LightControlInterface {
 
     Surface.LightControlInterfaceCallback callback;
+
+    private ArrayList<HassGroupEntity.GroupCallback> groupCallbacks = new ArrayList<>();
 
     private ColorType colorType = ColorType.UNKNOWN;
     private int COLOR_TEMP_OFFSET = 153;
@@ -28,6 +32,8 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
     public boolean hasColorLoop = false;
 
 
+
+
     public HassLightEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
         super(entityId, friendlyName, icon, color, hassEntities);
     }
@@ -35,6 +41,10 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
         this.callback = callback;
         updateLightControls();
+    }
+
+    public void addGroupCallback(HassGroupEntity.GroupCallback callback) {
+        groupCallbacks.add(callback);
     }
 
     public void setRgb(int[] rgb) {
@@ -111,14 +121,23 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
 
     private void updateLightControls() {
         if (callback != null) {
-            callback.updateLightControlCallback(this);
-            callback.updateButtonCallback(this);
+            callback.updateLightControlCallback();
+            callback.updateButtonCallback();
         }
     }
 
     private void unsetLightControls() {
         if (callback != null) {
             callback.unsetLightControlCallback();
+        }
+    }
+
+    private void resetLightControls() {
+        if (callback != null) {
+            callback.resetLightControlCallback();
+        }
+        for (HassGroupEntity.GroupCallback groupCallback : groupCallbacks) {
+            groupCallback.resetLightControlCallback();
         }
     }
 
@@ -177,6 +196,7 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
         try {
             String newState = row.getString(ATTR_STATE);
             JSONObject attributes = row.getJSONObject(ATTR);
+            boolean reset = false;
 
             if (attributes.has(ATTR_EFFECT_LIST)) {
                 // Only enable this once
@@ -192,18 +212,30 @@ public class HassLightEntity extends HassEntity implements LightControlInterface
             }
 
             if (attributes.has(ATTR_BRIGHTNESS)) {
-                hasBrightness = true;
+                if (!hasBrightness && attributes.has(ATTR_BRIGHTNESS)) {
+                    hasBrightness = true;
+                    reset = true;
+                }
                 brightness = Integer.parseInt(attributes.getString(ATTR_BRIGHTNESS));
             }
 
             if (attributes.has(ATTR_COLOR_TEMP)) {
-                hasColorTemp = true;
+                if (!hasColorTemp && attributes.has(ATTR_COLOR_TEMP)) {
+                    hasColorTemp = true;
+                    reset = true;
+                }
                 colorTemp = Integer.parseInt(attributes.getString(ATTR_COLOR_TEMP));
             }
 
             if (attributes.has(ATTR_RGB_COLOR)) {
-                // Save state?
-                hasRgb = true;
+                if (!hasRgb && attributes.has(ATTR_RGB_COLOR)) {
+                    hasRgb = true;
+                    reset = true;
+                }
+            }
+
+            if (reset) {
+                resetLightControls();
             }
 
             if (!state.equals(newState)) {

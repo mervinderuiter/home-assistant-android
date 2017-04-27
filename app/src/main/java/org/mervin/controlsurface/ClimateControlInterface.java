@@ -11,7 +11,8 @@ public interface ClimateControlInterface {
     float getTemp();
     float getTargetTemp();
     String getUnit();
-    void setTargetTemp(float target);
+    void tempUp();
+    void tempDown();
     boolean isAway();
     void setCallback(Surface.ClimateControlInterfaceCallback callback);
 }

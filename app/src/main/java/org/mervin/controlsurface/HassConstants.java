@@ -15,6 +15,7 @@ public final class HassConstants {
 
     public static final String COMMAND_ON = "turn_on";
     public static final String COMMAND_OFF = "turn_off";
+    public static final String COMMAND_SET_TEMP = "set_temperature";
 
     public static final String ATTR_ENTITY_ID = "entity_id";
     public static final String ATTR_BRIGHTNESS = "brightness";
@@ -25,6 +26,7 @@ public final class HassConstants {
     public static final String ATTR_STATE = "state";
     public static final String ATTR_FRIENDLY_NAME = "friendly_name";
     public static final String ATTR_ICON = "icon";
+    public static final String ATTR_TEMPERATURE = "temperature";
     public static final String CURRENT_TEMP = "current_temperature";
     public static final String TEMP = "temperature";
     public static final String TEMP_UNIT = "unit_of_measurement";
@@ -38,6 +40,7 @@ public final class HassConstants {
     public static final String URL_SERVICES = "services/";
     public static final String DOMAIN_SCENE = "scene";
     public static final String DOMAIN_LIGHT = "light";
+    public static final String DOMAIN_CLIMATE = "climate";
 
     public enum EntityType {
         GROUP,

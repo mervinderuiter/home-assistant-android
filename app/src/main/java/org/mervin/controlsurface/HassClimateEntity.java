@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.android.volley.RequestQueue;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import static org.mervin.controlsurface.HassConstants.*;
@@ -17,7 +19,7 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
     private boolean isAway;
     private float currentTemp;
     private float targetTemp;
-    private String unit;
+    private String unit = "";
 
     public HassClimateEntity(String entityId, String friendlyName, String icon, int color, HassEntities hassEntities) {
         super(entityId, friendlyName, icon, color, hassEntities);
@@ -52,12 +54,36 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
         return unit;
     }
 
-    public void setTargetTemp(float target){
-        targetTemp = target;
-    }
-
     public float getTargetTemp(){
         return targetTemp;
+    }
+
+    public void tempUp() {
+        setTargetTemp(targetTemp + 0.5f);
+    }
+
+    public void tempDown() {
+        setTargetTemp(targetTemp - 0.5f);
+    }
+
+    public void setTargetTemp(float temp) {
+        try {
+            targetTemp = temp;
+            updateClimateControl();
+            JSONObject payload = new JSONObject();
+            payload.put(ATTR_ENTITY_ID, entityName);
+            payload.put(ATTR_TEMPERATURE, Float.toString(targetTemp));
+            hassEntities.callService(DOMAIN_CLIMATE, COMMAND_SET_TEMP, payload);
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateClimateControl() {
+        if (callback != null) {
+            callback.updateClimateControlCallback(this);
+        }
     }
 
 
@@ -75,13 +101,11 @@ public class HassClimateEntity extends HassEntity implements ClimateControlInter
                 currentTemp = Float.parseFloat(attributes.getString(CURRENT_TEMP));
             }
 
-            if (attributes.has(TEMP_UNIT)) {
+            if (attributes.has(TEMP_UNIT) && unit.equals("")) {
                 unit = attributes.getString(TEMP_UNIT);
             }
 
-            if (callback != null) {
-                callback.updateClimateControlCallback(this);
-            }
+            updateClimateControl();
 
         } catch (Exception e) {
             Log.e("HassEntity", "exception", e);

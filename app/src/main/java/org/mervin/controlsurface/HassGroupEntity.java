@@ -12,6 +12,10 @@ import static org.mervin.controlsurface.HassConstants.*;
 
 public class HassGroupEntity extends HassEntity implements LightControlInterface {
 
+    interface GroupCallback {
+        void resetLightControlCallback();
+    }
+
     Surface.LightControlInterfaceCallback callback;
 
     private ArrayList<HassLightEntity> lightControlEntities = new ArrayList<>();
@@ -46,7 +50,7 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     public void setCallback(Surface.LightControlInterfaceCallback callback) {
         this.callback = callback;
-        callback.updateLightControlCallback(this);
+        callback.updateLightControlCallback();
     }
 
     public void setRgb(int[] rgb) {
@@ -205,14 +209,20 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
 
     private void updateLightControls() {
         if (callback != null) {
-            callback.updateLightControlCallback(this);
-            callback.updateButtonCallback(this);
+            callback.updateLightControlCallback();
+            callback.updateButtonCallback();
         }
     }
 
     private void unsetLightControls() {
         if (callback != null) {
             callback.unsetLightControlCallback();
+        }
+    }
+
+    private void resetLightControls() {
+        if (callback != null) {
+            callback.resetLightControlCallback();
         }
     }
 
@@ -231,6 +241,12 @@ public class HassGroupEntity extends HassEntity implements LightControlInterface
                     HassLightEntity lightEntity = hassEntities.searchLightEntity(childId);
                     if (lightEntity != null) {
                         lightControlEntities.add(lightEntity);
+                        lightEntity.addGroupCallback(new GroupCallback() {
+                            @Override
+                            public void resetLightControlCallback() {
+                                resetLightControls();
+                            }
+                        });
                     }
                     HassEntity entity = hassEntities.searchEntity(childId);
                     if (entity != null) {
